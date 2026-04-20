@@ -143,7 +143,7 @@
                 <div class="pt-6 border-t border-slate-100 space-y-3">
                     <p class="text-[10px] font-black uppercase text-slate-400">Importación Manual (Texto)</p>
                     <textarea id="importText" placeholder="Pega aquí el texto de WhatsApp..." class="w-full h-24 p-4 rounded-2xl bg-slate-50 border-none outline-none text-[10px] font-mono"></textarea>
-                    <button onclick="importFromText()" class="w-full bg-slate-100 text-slate-700 py-3 rounded-2xl font-black uppercase text-[10px]">Restaurar desde texto</button>
+                    <button onclick="importFromText()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg shadow-indigo-100">Restaurar desde texto</button>
                 </div>
             </div>
         </div>
@@ -275,23 +275,58 @@
                     const tDebe = (c.status === 'pending' ? parseFloat(c.price || 0) : 0) + parseFloat(c.debt || 0);
                     
                     container.innerHTML += `<div class="card p-5 border-l-[6px] ${diff < 0 ? 'border-slate-800' : diff < 7 ? 'border-rose-500' : 'border-indigo-500'}">
-                        <div class="flex justify-between items-start">
-                            <div onclick="editClient(${i})" class="flex-1">
-                                <div class="flex items-center gap-2">
-                                    <h3 class="font-black text-slate-800 text-xs uppercase">${c.name}</h3>
-                                    ${c.obs ? `<span class="bg-indigo-100 text-indigo-600 text-[8px] font-black px-1.5 py-0.5 rounded uppercase">${c.obs}</span>` : ''}
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-start">
+                                <div onclick="editClient(${i})" class="flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="font-black text-slate-800 text-xs uppercase">${c.name}</h3>
+                                        ${c.obs ? `<span class="bg-indigo-100 text-indigo-600 text-[8px] font-black px-1.5 py-0.5 rounded uppercase">${c.obs}</span>` : ''}
+                                    </div>
+                                    <p class="text-[9px] font-bold text-slate-400 tracking-tight">${c.date} ${c.user ? '• ' + c.user : ''}</p>
+                                    ${tDebe > 0 ? `<p class="text-[9px] font-black text-rose-500 mt-1 uppercase italic">Debe ${tDebe.toFixed(2)}€</p>` : ''}
                                 </div>
-                                <p class="text-[9px] font-bold text-slate-400 tracking-tight">${c.date} ${c.user ? '• ' + c.user : ''}</p>
-                                ${tDebe > 0 ? `<p class="text-[9px] font-black text-rose-500 mt-1 uppercase italic">Debe ${tDebe.toFixed(2)}€</p>` : ''}
+                                <div class="flex gap-2">
+                                    <button onclick="directRenew(event, ${i})" class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-[9px] font-black uppercase active:scale-95 shadow-md shadow-indigo-100">+1M</button>
+                                    <button onclick="sendWarning(event, ${i})" class="bg-emerald-100 p-2.5 rounded-xl flex items-center justify-center"><svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.526-2.961-2.642-.087-.116-.708-.941-.708-1.797 0-.856.448-1.277.607-1.45.159-.174.347-.218.463-.218.116 0 .232.001.333.005.105.004.246-.04.385.293.144.346.491 1.201.535 1.287.044.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.174.088.275.073.376-.044.101-.117.434-.506.549-.68.116-.174.232-.145.391-.087.159.058 1.012.477 1.186.564.174.087.29.129.333.202.043.073.043.419-.101.824z"/></svg></button>
+                                </div>
                             </div>
-                            <div class="flex gap-2">
-                                <button onclick="directRenew(event, ${i})" class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-[9px] font-black uppercase active:scale-95 shadow-md shadow-indigo-100">+1M</button>
-                                <button onclick="sendWarning(event, ${i})" class="bg-emerald-100 p-2.5 rounded-xl flex items-center justify-center"><svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.526-2.961-2.642-.087-.116-.708-.941-.708-1.797 0-.856.448-1.277.607-1.45.159-.174.347-.218.463-.218.116 0 .232.001.333.005.105.004.246-.04.385.293.144.346.491 1.201.535 1.287.044.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.174.088.275.073.376-.044.101-.117.434-.506.549-.68.116-.174.232-.145.391-.087.159.058 1.012.477 1.186.564.174.087.29.129.333.202.043.073.043.419-.101.824z"/></svg></button>
+                            <!-- Botones de Copiado Rápido -->
+                            <div class="flex gap-2 pt-1">
+                                <button onclick="quickCopy(event, '${c.user}', 'Usuario')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 py-2 rounded-xl text-[8px] font-black uppercase transition-colors">Usuario</button>
+                                <button onclick="quickCopy(event, '${c.pass}', 'Contraseña')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 py-2 rounded-xl text-[8px] font-black uppercase transition-colors">Contraseña</button>
+                                <button onclick="copyAll(event, ${i})" class="flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 py-2 rounded-xl text-[8px] font-black uppercase transition-colors">Todo</button>
                             </div>
                         </div>
                     </div>`;
                 }
             });
+        }
+
+        // Funciones de Copiado
+        function quickCopy(e, text, label) {
+            if(e) e.stopPropagation();
+            if(!text || text === 'undefined') { showToast(`No hay ${label}`); return; }
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast(`${label} copiado`);
+        }
+
+        function copyAll(e, i) {
+            if(e) e.stopPropagation();
+            const c = db[i];
+            // Solo usuario y contraseña
+            const text = `Usuario: ${c.user || '---'}\nContraseña: ${c.pass || '---'}`;
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast("Usuario y Contraseña copiados");
         }
 
         function directRenew(e, i) {
@@ -348,35 +383,26 @@
             } else {
                 const payDayDate = new Date(thisYear, thisMonth, configProv.day);
                 const diffDays = Math.ceil((payDayDate - today) / 86400000);
-                if (diffDays < 0) { panel.classList.add('prov-danger'); statusText.innerText = "PENDIENTE ❌"; daysText.innerText = `RETRASO ${Math.abs(diffDays)} DÍAS`; iconCircle.innerHTML = "!"; }
+                if (diffDays <= 1) { panel.classList.add('prov-danger'); statusText.innerText = "PENDIENTE ❌"; daysText.innerText = diffDays < 0 ? `RETRASO ${Math.abs(diffDays)} DÍAS` : `QUEDA ${diffDays} DÍA`; iconCircle.innerHTML = "!"; }
                 else if (diffDays <= 7) { panel.classList.add('prov-warning'); statusText.innerText = "PRÓXIMO PAGO ⏳"; daysText.innerText = `QUEDAN ${diffDays} DÍAS`; iconCircle.innerHTML = "⌛"; }
                 else { panel.classList.add('prov-safe'); statusText.innerText = "PROGRAMADO 📋"; daysText.innerText = `FALTAN ${diffDays} DÍAS`; iconCircle.innerHTML = "i"; }
             }
 
             // Cálculo Finanzas Reales
-            // 1. Ingresos que realmente se han cobrado (status === 'paid')
             const ingresosCobrados = db.filter(c => c.status === 'paid').reduce((a, c) => a + parseFloat(c.price || 0), 0);
-            
-            // 2. Gastos reales (gastos fijos del servidor pagados + gastos extras registrados)
             const costosServidorPagados = db.filter(c => c.status === 'paid').reduce((a, c) => a + parseFloat(c.cost || 0), 0);
             const gastosExtras = gastos.reduce((a, g) => a + parseFloat(g.importe || 0), 0);
             const gastosTotales = costosServidorPagados + gastosExtras;
-
-            // 3. Beneficio Real (Caja actual)
             const beneficioReal = ingresosCobrados - gastosTotales;
-
-            // 4. Beneficio Estimado (Si todos pagaran hoy)
             const totalPrecios = db.reduce((a, c) => a + parseFloat(c.price || 0), 0);
             const totalCostos = db.reduce((a, c) => a + parseFloat(c.cost || 0), 0);
             const beneficioEstimado = (totalPrecios - totalCostos) - gastosExtras;
 
-            // Renderizar etiquetas
             document.getElementById('finCobradoReal').innerText = ingresosCobrados.toFixed(2) + "€";
             document.getElementById('finGastadoReal').innerText = gastosTotales.toFixed(2) + "€";
             document.getElementById('finNetoReal').innerText = beneficioReal.toFixed(2) + "€";
             document.getElementById('finNetoEstimado').innerText = beneficioEstimado.toFixed(2) + "€";
 
-            // Historial Gastos
             const hist = document.getElementById('listaGastos'); hist.innerHTML = '';
             gastos.sort((a,b) => new Date(b.fecha) - new Date(a.fecha)).forEach((g, idx) => {
                 hist.innerHTML += `<div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
