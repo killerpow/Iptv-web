@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPTV Manager Pro - V46.2</title>
+    <title>IPTV Manager Pro - V46.4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
@@ -29,8 +29,8 @@
     <div class="bg-slate-900 text-white p-6 sticky top-0 z-40 shadow-xl">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div>
-                <h1 class="text-xl font-black tracking-tight">IPTV PRO <span class="text-indigo-400">V46.2</span></h1>
-                <p class="text-[9px] opacity-60 uppercase font-bold tracking-widest text-indigo-300 text-right">Liquidación & Backup Universal</p>
+                <h1 class="text-xl font-black tracking-tight">IPTV PRO <span class="text-indigo-400">V46.4</span></h1>
+                <p class="text-[9px] opacity-60 uppercase font-bold tracking-widest text-indigo-300 text-right">Finanzas Reales & Backup</p>
             </div>
             <button onclick="prepareNewClient()" class="bg-indigo-500 hover:bg-indigo-400 p-3 rounded-2xl shadow-lg transition-all active:scale-90">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
@@ -62,6 +62,7 @@
         </div>
 
         <div id="view-finanzas" class="hidden space-y-6">
+            <!-- Estado Proveedor -->
             <div id="provTrafficLight" class="card p-6 border-2 transition-all duration-500">
                 <div class="flex justify-between items-start">
                     <div class="flex gap-4">
@@ -77,20 +78,35 @@
                     </div>
                 </div>
             </div>
-            <div class="card p-8 text-white text-center shadow-2xl bg-indigo-600">
-                <p class="text-[10px] font-bold uppercase opacity-80 mb-1">Beneficio Neto Estimado</p>
-                <h2 id="finNeto" class="text-5xl font-black">0.00€</h2>
+
+            <!-- Panel de Beneficios -->
+            <div class="space-y-4">
+                <!-- Beneficio Real (Lo que hay en caja) -->
+                <div class="card p-8 text-white text-center shadow-2xl bg-emerald-600">
+                    <p class="text-[10px] font-bold uppercase opacity-80 mb-1">Beneficio Real (Cobrado - Gastos)</p>
+                    <h2 id="finNetoReal" class="text-5xl font-black">0.00€</h2>
+                    <p class="text-[9px] mt-2 opacity-70 font-bold uppercase tracking-widest text-emerald-100 italic">Dinero disponible actualmente</p>
+                </div>
+
+                <!-- Beneficio Estimado (Si todos pagaran) -->
+                <div class="card p-6 text-slate-800 text-center border-dashed border-2 border-indigo-200">
+                    <p class="text-[10px] font-bold uppercase text-slate-400 mb-1">Beneficio Neto Estimado</p>
+                    <h2 id="finNetoEstimado" class="text-2xl font-black text-indigo-600">0.00€</h2>
+                    <p class="text-[8px] opacity-60 font-bold uppercase">Incluye deudas pendientes</p>
+                </div>
             </div>
+
             <div class="grid grid-cols-2 gap-4">
                 <div class="card p-4 border-l-4 border-emerald-500">
                     <p class="text-[8px] font-black uppercase text-slate-400">Total Cobrado</p>
                     <p id="finCobradoReal" class="text-sm font-black text-emerald-600">0.00€</p>
                 </div>
                 <div class="card p-4 border-l-4 border-rose-500">
-                    <p class="text-[8px] font-black uppercase text-slate-400">Total Gastado</p>
+                    <p class="text-[8px] font-black uppercase text-slate-400">Gastos Totales</p>
                     <p id="finGastadoReal" class="text-sm font-black text-rose-600">0.00€</p>
                 </div>
             </div>
+
             <div class="card p-6 space-y-4">
                 <div class="flex justify-between items-center">
                     <h3 class="text-xs font-black uppercase text-slate-800">Historial Gastos</h3>
@@ -100,20 +116,34 @@
             </div>
         </div>
 
-        <!-- Vista Sistema -->
         <div id="view-sistema" class="hidden space-y-6">
-            <div class="card p-6 space-y-4">
-                <h3 class="text-xs font-black uppercase text-slate-800 text-center mb-2">Gestión de Datos</h3>
+            <div class="card p-6 space-y-4 text-center">
+                <h3 class="text-xs font-black uppercase text-slate-800 mb-2 tracking-widest">Gestión de Datos</h3>
+                
+                <!-- Exportación -->
                 <div class="grid grid-cols-1 gap-3">
-                    <button onclick="backupToWhatsApp()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg shadow-emerald-100">Copia a WhatsApp</button>
-                    <button onclick="downloadBackup()" class="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase text-xs">Descargar archivo JSON</button>
+                    <button onclick="backupToWhatsApp()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg shadow-emerald-100 flex items-center justify-center gap-2">
+                        <span>Copia a WhatsApp</span>
+                    </button>
+                    <button onclick="downloadBackup()" class="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-2">
+                        <span>Descargar archivo JSON</span>
+                    </button>
                 </div>
                 
-                <div class="pt-4 border-t border-slate-100 space-y-3">
-                    <p class="text-[9px] font-black uppercase text-slate-400 text-center">Importación Manual / Archivo JSON</p>
-                    <p class="text-[8px] text-slate-400 text-center italic px-4">Pega el texto de WhatsApp o el contenido de tu archivo .json abajo:</p>
-                    <textarea id="importText" placeholder="Pega aquí el código o contenido del JSON..." class="w-full h-32 p-4 rounded-2xl bg-slate-50 border-none outline-none text-[10px] font-mono"></textarea>
-                    <button onclick="importFromText()" class="w-full bg-indigo-100 text-indigo-700 py-4 rounded-2xl font-black uppercase text-xs">Restaurar Datos</button>
+                <!-- Importación por Archivo -->
+                <div class="pt-6 border-t border-slate-100">
+                    <p class="text-[10px] font-black uppercase text-slate-400 mb-3">Restaurar desde archivo</p>
+                    <input type="file" id="fileInput" accept=".json" class="hidden" onchange="importFromFile(event)">
+                    <button onclick="document.getElementById('fileInput').click()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg shadow-indigo-100">
+                        Seleccionar archivo .json
+                    </button>
+                </div>
+
+                <!-- Importación Manual -->
+                <div class="pt-6 border-t border-slate-100 space-y-3">
+                    <p class="text-[10px] font-black uppercase text-slate-400">Importación Manual (Texto)</p>
+                    <textarea id="importText" placeholder="Pega aquí el texto de WhatsApp..." class="w-full h-24 p-4 rounded-2xl bg-slate-50 border-none outline-none text-[10px] font-mono"></textarea>
+                    <button onclick="importFromText()" class="w-full bg-slate-100 text-slate-700 py-3 rounded-2xl font-black uppercase text-[10px]">Restaurar desde texto</button>
                 </div>
             </div>
         </div>
@@ -137,7 +167,6 @@
                     <input type="text" id="pass" placeholder="Clave" class="w-full p-4 rounded-2xl bg-slate-50 border-none outline-none font-bold text-xs">
                 </div>
                 
-                <!-- Nuevo Campo de Observaciones -->
                 <input type="text" id="obs" placeholder="ID o NOMBRE INTERNO (Opcional)" class="w-full p-4 rounded-2xl bg-indigo-50 border-none outline-none font-black text-[10px] text-indigo-700 uppercase">
 
                 <div class="bg-slate-50 p-5 rounded-3xl border border-slate-100">
@@ -172,6 +201,7 @@
         </div>
     </div>
 
+    <!-- Modales Secundarios -->
     <div id="modalLiquidacion" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-[2rem] max-w-sm w-full p-8 shadow-2xl space-y-5">
             <h2 class="text-xl font-black uppercase text-center">Liquidar Deuda</h2>
@@ -255,9 +285,8 @@
                                 ${tDebe > 0 ? `<p class="text-[9px] font-black text-rose-500 mt-1 uppercase italic">Debe ${tDebe.toFixed(2)}€</p>` : ''}
                             </div>
                             <div class="flex gap-2">
-                                <!-- Botón Renovación Directa -->
                                 <button onclick="directRenew(event, ${i})" class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-[9px] font-black uppercase active:scale-95 shadow-md shadow-indigo-100">+1M</button>
-                                <button onclick="sendWarning(event, ${i})" class="bg-emerald-100 p-2.5 rounded-xl"><svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.526-2.961-2.642-.087-.116-.708-.941-.708-1.797 0-.856.448-1.277.607-1.45.159-.174.347-.218.463-.218.116 0 .232.001.333.005.105.004.246-.04.385.293.144.346.491 1.201.535 1.287.044.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.174.088.275.073.376-.044.101-.117.434-.506.549-.68.116-.174.232-.145.391-.087.159.058 1.012.477 1.186.564.174.087.29.129.333.202.043.073.043.419-.101.824z"/></svg></button>
+                                <button onclick="sendWarning(event, ${i})" class="bg-emerald-100 p-2.5 rounded-xl flex items-center justify-center"><svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.526-2.961-2.642-.087-.116-.708-.941-.708-1.797 0-.856.448-1.277.607-1.45.159-.174.347-.218.463-.218.116 0 .232.001.333.005.105.004.246-.04.385.293.144.346.491 1.201.535 1.287.044.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.174.088.275.073.376-.044.101-.117.434-.506.549-.68.116-.174.232-.145.391-.087.159.058 1.012.477 1.186.564.174.087.29.129.333.202.043.073.043.419-.101.824z"/></svg></button>
                             </div>
                         </div>
                     </div>`;
@@ -265,7 +294,6 @@
             });
         }
 
-        // Nueva función para renovar sin entrar en ficha
         function directRenew(e, i) {
             e.stopPropagation();
             const c = db[i];
@@ -306,6 +334,7 @@
                 return gd.getMonth() === thisMonth && gd.getFullYear() === thisYear && g.concepto.toUpperCase().includes("PROV");
             });
 
+            // Semáforo Proveedor
             const panel = document.getElementById('provTrafficLight');
             const statusText = document.getElementById('provStatusText');
             const daysText = document.getElementById('provDaysText');
@@ -324,13 +353,30 @@
                 else { panel.classList.add('prov-safe'); statusText.innerText = "PROGRAMADO 📋"; daysText.innerText = `FALTAN ${diffDays} DÍAS`; iconCircle.innerHTML = "i"; }
             }
 
-            const ingresos = db.filter(c => c.status === 'paid').reduce((a, c) => a + parseFloat(c.price || 0), 0);
-            const costosFijos = db.filter(c => c.status === 'paid').reduce((a, c) => a + parseFloat(c.cost || 0), 0);
+            // Cálculo Finanzas Reales
+            // 1. Ingresos que realmente se han cobrado (status === 'paid')
+            const ingresosCobrados = db.filter(c => c.status === 'paid').reduce((a, c) => a + parseFloat(c.price || 0), 0);
+            
+            // 2. Gastos reales (gastos fijos del servidor pagados + gastos extras registrados)
+            const costosServidorPagados = db.filter(c => c.status === 'paid').reduce((a, c) => a + parseFloat(c.cost || 0), 0);
             const gastosExtras = gastos.reduce((a, g) => a + parseFloat(g.importe || 0), 0);
-            document.getElementById('finCobradoReal').innerText = ingresos.toFixed(2) + "€";
-            document.getElementById('finGastadoReal').innerText = (costosFijos + gastosExtras).toFixed(2) + "€";
-            document.getElementById('finNeto').innerText = (ingresos - (costosFijos + gastosExtras)).toFixed(2) + "€";
+            const gastosTotales = costosServidorPagados + gastosExtras;
 
+            // 3. Beneficio Real (Caja actual)
+            const beneficioReal = ingresosCobrados - gastosTotales;
+
+            // 4. Beneficio Estimado (Si todos pagaran hoy)
+            const totalPrecios = db.reduce((a, c) => a + parseFloat(c.price || 0), 0);
+            const totalCostos = db.reduce((a, c) => a + parseFloat(c.cost || 0), 0);
+            const beneficioEstimado = (totalPrecios - totalCostos) - gastosExtras;
+
+            // Renderizar etiquetas
+            document.getElementById('finCobradoReal').innerText = ingresosCobrados.toFixed(2) + "€";
+            document.getElementById('finGastadoReal').innerText = gastosTotales.toFixed(2) + "€";
+            document.getElementById('finNetoReal').innerText = beneficioReal.toFixed(2) + "€";
+            document.getElementById('finNetoEstimado').innerText = beneficioEstimado.toFixed(2) + "€";
+
+            // Historial Gastos
             const hist = document.getElementById('listaGastos'); hist.innerHTML = '';
             gastos.sort((a,b) => new Date(b.fecha) - new Date(a.fecha)).forEach((g, idx) => {
                 hist.innerHTML += `<div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
@@ -381,7 +427,7 @@
                 phone: document.getElementById('phone').value,
                 user: document.getElementById('user').value, 
                 pass: document.getElementById('pass').value,
-                obs: document.getElementById('obs').value, // Guardar observaciones
+                obs: document.getElementById('obs').value,
                 date: document.getElementById('date').value, 
                 price: document.getElementById('price').value,
                 cost: document.getElementById('cost').value, 
@@ -407,37 +453,57 @@
             label.className = res >= 0 ? "text-center font-black text-xs text-emerald-600" : "text-center font-black text-xs text-rose-600";
         }
 
-        // --- Sistema & Backup ---
+        // --- SISTEMA: GESTIÓN DE DATOS ---
         function backupToWhatsApp() {
             const fullBackup = JSON.stringify({db, gastos, config: configProv});
-            const msg = `IPTV BACKUP V46.2:\n${fullBackup}`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+            const msg = `BACKUP_IPTV_V464:${fullBackup}`;
+            const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+            window.open(whatsappUrl, '_blank');
         }
 
         function downloadBackup() {
-            const blob = new Blob([JSON.stringify({db, gastos, config: configProv})], { type: 'application/json' });
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `iptv_backup_${new Date().toISOString().split('T')[0]}.json`; a.click();
+            const dataToSave = {db, gastos, config: configProv};
+            const blob = new Blob([JSON.stringify(dataToSave, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `iptv_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
+
+        function importFromFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) { processData(e.target.result); };
+            reader.readAsText(file);
+            event.target.value = '';
         }
 
         function importFromText() {
+            const txt = document.getElementById('importText').value.trim();
+            if (!txt) { alert("Pega el texto antes de intentar restaurar."); return; }
+            processData(txt);
+        }
+
+        function processData(rawText) {
             try {
-                const txt = document.getElementById('importText').value.trim();
-                if (!txt) { alert("Por favor, pega el contenido antes de importar."); return; }
-                const jsonStart = txt.indexOf('{');
-                const jsonEnd = txt.lastIndexOf('}');
-                if (jsonStart === -1 || jsonEnd === -1) { throw new Error("Formato no reconocido. No se encontró JSON."); }
-                const cleanJson = txt.substring(jsonStart, jsonEnd + 1);
+                const jsonStart = rawText.indexOf('{');
+                const jsonEnd = rawText.lastIndexOf('}');
+                if (jsonStart === -1 || jsonEnd === -1) throw new Error("No se encontró un formato JSON válido.");
+                const cleanJson = rawText.substring(jsonStart, jsonEnd + 1);
                 const data = JSON.parse(cleanJson);
-                if (!data.db && !data.gastos) { throw new Error("Archivo no válido."); }
-                if (confirm('¿Restaurar datos?')) {
+                if (!data.db && !data.gastos) throw new Error("El archivo no contiene datos compatibles.");
+                if (confirm('¿Estás seguro de que quieres restaurar estos datos?')) {
                     db = data.db || [];
                     gastos = data.gastos || [];
                     configProv = data.config || configProv;
-                    save(); location.reload();
+                    save();
+                    location.reload();
                 }
-            } catch(e) { alert("Error al importar: " + e.message); }
+            } catch(e) { alert("Error al procesar el archivo/texto: " + e.message); }
         }
 
+        // --- GASTOS Y PROVEEDOR ---
         function prepareGasto() { 
             const n = new Date(); document.getElementById('gastoForm').reset(); 
             document.getElementById('gastoFecha').value = n.toISOString().split('T')[0]; 
@@ -457,10 +523,13 @@
             save(); closeModal('modalConfigProv'); renderFinanzas();
         }
 
+        // --- OTROS ---
         function sendWarning(e, i) {
-            if(e) e.stopPropagation(); const c = db[i];
+            if(e) e.stopPropagation(); 
+            const c = db[i];
             const msg = `Hola ${c.name}, el servicio de TV vence el ${c.date}. ¿Deseas renovar?`;
-            window.open(`https://wa.me/${c.phone}?text=${encodeURIComponent(msg)}`, '_blank');
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${c.phone}&text=${encodeURIComponent(msg)}`;
+            window.open(whatsappUrl, '_blank');
         }
 
         function deleteClient() { if(confirm('¿Borrar cliente?')) { db.splice(document.getElementById('editIndex').value, 1); save(); render(); closeModal('clientModal'); } }
