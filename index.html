@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPTV Manager Pro - V46.4 Dark</title>
+    <title>IPTV Manager Pro - V46.10 Dark</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght=300;400;600;700;800&display=swap');
         
         body { 
             font-family: 'Inter', sans-serif; 
-            background-color: #0f172a; /* Fondo total oscuro */
+            background-color: #0f172a; 
             color: #f1f5f9;
             padding-bottom: 100px; 
         }
@@ -27,6 +27,11 @@
             color: #818cf8; 
             border-bottom: 3px solid #818cf8; 
             font-weight: 800; 
+        }
+
+        .filter-btn-active {
+            background-color: #4f46e5 !important;
+            color: white !important;
         }
         
         /* Estados del semáforo adaptados a modo oscuro */
@@ -60,7 +65,6 @@
             display: none; 
         }
 
-        /* Estilos para inputs en modo oscuro */
         input, select, textarea {
             background-color: #334155 !important;
             color: white !important;
@@ -79,8 +83,8 @@
     <div class="bg-slate-950 text-white p-6 sticky top-0 z-40 shadow-2xl border-b border-slate-800">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div>
-                <h1 class="text-xl font-black tracking-tight">IPTV PRO <span class="text-indigo-400">V46.4</span></h1>
-                <p class="text-[9px] opacity-60 uppercase font-bold tracking-widest text-indigo-300">Finanzas Reales & Dark Mode</p>
+                <h1 class="text-xl font-black tracking-tight">IPTV PRO <span class="text-indigo-400">V46.10</span></h1>
+                <p class="text-[9px] opacity-60 uppercase font-bold tracking-widest text-indigo-300">Control Mensual & Sistema Robusto</p>
             </div>
             <button onclick="prepareNewClient()" class="bg-indigo-600 hover:bg-indigo-500 p-3 rounded-2xl shadow-lg transition-all active:scale-90">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
@@ -97,12 +101,21 @@
             <button onclick="switchTab('sistema')" id="tab-sistema" class="flex-1 px-2 py-4 text-[10px] font-black uppercase text-slate-500">Sistema</button>
         </div>
 
-        <!-- Vistas -->
+        <!-- Vistas: CLIENTES -->
         <div id="view-clientes" class="space-y-4">
-            <input type="text" id="searchInput" oninput="render()" placeholder="Buscar cliente..." class="w-full p-4 rounded-2xl border border-slate-700 shadow-sm outline-none text-sm font-medium bg-slate-800">
+            <input type="text" id="searchInput" oninput="render()" placeholder="Buscar por nombre, usuario o id interno..." class="w-full p-4 rounded-2xl border border-slate-700 shadow-sm outline-none text-sm font-medium bg-slate-800">
+            
+            <!-- Botones de Filtro Rápido -->
+            <div class="flex gap-2">
+                <button onclick="setFilter('all')" id="filter-all" class="flex-1 py-2 bg-slate-800 rounded-xl text-[9px] font-black uppercase text-slate-400 filter-btn-active">Todos</button>
+                <button onclick="setFilter('expired')" id="filter-expired" class="flex-1 py-2 bg-slate-800 rounded-xl text-[9px] font-black uppercase text-slate-400">Vencidos</button>
+                <button onclick="setFilter('pending')" id="filter-pending" class="flex-1 py-2 bg-slate-800 rounded-xl text-[9px] font-black uppercase text-slate-400">Pendientes Pago</button>
+            </div>
+
             <div id="listaClientes" class="space-y-3"></div>
         </div>
 
+        <!-- Vistas: DEUDAS -->
         <div id="view-deudas" class="hidden space-y-4">
             <div class="card p-6 bg-rose-900 text-white text-center border-rose-800">
                 <p class="text-[10px] font-bold uppercase opacity-80 mb-1">Total Pendiente de Cobro</p>
@@ -111,6 +124,7 @@
             <div id="listaDeudores" class="space-y-3"></div>
         </div>
 
+        <!-- Vistas: FINANZAS -->
         <div id="view-finanzas" class="hidden space-y-6">
             <!-- Estado Proveedor -->
             <div id="provTrafficLight" class="card p-6 border-2 transition-all duration-500">
@@ -155,6 +169,17 @@
                 </div>
             </div>
 
+            <!-- Herramienta de Reinicio de Mes -->
+            <div class="card p-5 border border-dashed border-indigo-500/40 bg-indigo-950/20 text-center space-y-3">
+                <div>
+                    <h4 class="text-xs font-black text-indigo-300 uppercase">Control de Ciclo Mensual</h4>
+                    <p class="text-[9px] text-slate-400 uppercase mt-0.5">Pasa clientes a pendientes arrastrando sus deudas previas y limpia los gastos extras</p>
+                </div>
+                <button onclick="resetMesManual()" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all text-white rounded-xl text-xs font-black uppercase shadow-md">
+                    🔄 Iniciar Nuevo Mes
+                </button>
+            </div>
+
             <div class="card p-6 space-y-4">
                 <div class="flex justify-between items-center">
                     <h3 class="text-xs font-black uppercase text-slate-300">Historial Gastos</h3>
@@ -164,6 +189,7 @@
             </div>
         </div>
 
+        <!-- Vistas: SISTEMA -->
         <div id="view-sistema" class="hidden space-y-6">
             <div class="card p-6 space-y-4 text-center">
                 <h3 class="text-xs font-black uppercase text-slate-300 mb-2 tracking-widest">Gestión de Datos</h3>
@@ -186,20 +212,28 @@
                 </div>
 
                 <div class="pt-6 border-t border-slate-700 space-y-3">
-                    <p class="text-[10px] font-black uppercase text-slate-500">Importación Manual (Texto)</p>
-                    <textarea id="importText" placeholder="Pega aquí el texto de WhatsApp..." class="w-full h-24 p-4 rounded-2xl bg-slate-900 border-slate-700 outline-none text-[10px] font-mono text-slate-300"></textarea>
-                    <button onclick="importFromText()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black uppercase text-xs">Restaurar desde texto</button>
+                    <p class="text-[10px] font-black uppercase text-indigo-400">Importación Manual (Texto Copiado)</p>
+                    <p class="text-[9px] text-slate-400 uppercase leading-snug">Si el botón de arriba falla por seguridad, abre tu archivo de copia con el bloc de notas, copia todo su contenido, pégalo aquí abajo y pulsa el botón morado:</p>
+                    <textarea id="importText" placeholder="Pega aquí el contenido de tu archivo de copia .json o el mensaje de copia de seguridad de WhatsApp..." class="w-full h-32 p-4 rounded-2xl bg-slate-900 border-slate-700 outline-none text-[10px] font-mono text-slate-300"></textarea>
+                    <button onclick="importFromText()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg active:scale-95 transition-all">Restaurar desde texto pegado</button>
+                </div>
+
+                <!-- Botón de Emergencia de Reseteo (por si localStorage se corrompe) -->
+                <div class="pt-6 border-t border-slate-800">
+                    <button onclick="limpiarLocalStorageForzado()" class="w-full text-rose-500/70 border border-rose-950 hover:bg-rose-950/20 py-3 rounded-2xl font-black uppercase text-[9px] tracking-widest">
+                        🚨 Forzar limpieza total (Borrar todo)
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modales -->
+    <!-- Modales de edición y ficha -->
     <div id="clientModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 z-50">
         <div class="bg-slate-900 rounded-[2.5rem] max-w-md w-full p-8 shadow-2xl max-h-[90vh] overflow-y-auto border border-slate-800">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-black uppercase text-white">Ficha Cliente</h2>
-                <button onclick="closeModal('clientModal')" class="text-3xl text-slate-500">&times;</button>
+                <button onclick="closeModal('clientModal')" class="text-3xl text-slate-500 hover:text-white">&times;</button>
             </div>
             <form id="clientForm" class="space-y-4">
                 <input type="hidden" id="editIndex">
@@ -290,18 +324,94 @@
         </div>
     </div>
 
+    <!-- Modal de Confirmación Personalizado -->
+    <div id="confirmModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 rounded-[2rem] max-w-sm w-full p-8 shadow-2xl border border-slate-800 space-y-4 text-center">
+            <div class="w-12 h-12 rounded-full bg-indigo-950 text-indigo-400 flex items-center justify-center mx-auto mb-2 text-xl font-black">?</div>
+            <h3 class="text-md font-black text-white uppercase" id="confirmTitle">Confirmar Acción</h3>
+            <p class="text-xs text-slate-400 leading-relaxed" id="confirmMessage">¿Estás seguro de continuar con esta acción?</p>
+            <div class="grid grid-cols-2 gap-3 pt-3">
+                <button id="confirmCancelBtn" class="bg-slate-800 text-slate-300 p-4 rounded-2xl font-black text-[10px] uppercase hover:bg-slate-700">Cancelar</button>
+                <button id="confirmOkBtn" class="bg-indigo-600 text-white p-4 rounded-2xl font-black text-[10px] uppercase hover:bg-indigo-500">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Lógica de negocio (Igual a la original)
-        let db = JSON.parse(localStorage.getItem('iptv_v46_db')) || [];
-        let gastos = JSON.parse(localStorage.getItem('iptv_v46_gastos')) || [];
-        let configProv = JSON.parse(localStorage.getItem('iptv_v46_config')) || { day: 23, amount: 0 };
+        // INICIALIZACIÓN BLINDADA: Evita que el programa se cuelgue en carga por datos rotos previos
+        let db = [];
+        let gastos = [];
+        let configProv = { day: 23, amount: 0 };
+        
+        try {
+            const rawDb = localStorage.getItem('iptv_v46_db');
+            if (rawDb && rawDb.trim() !== "" && rawDb !== "[object Object]") {
+                db = JSON.parse(rawDb) || [];
+            }
+            if (!Array.isArray(db)) {
+                db = [];
+            }
+        } catch(e) {
+            console.error("Error al cargar base de datos, inicializando vacía:", e);
+            db = [];
+        }
+
+        try {
+            const rawGastos = localStorage.getItem('iptv_v46_gastos');
+            if (rawGastos && rawGastos.trim() !== "" && rawGastos !== "[object Object]") {
+                gastos = JSON.parse(rawGastos) || [];
+            }
+            if (!Array.isArray(gastos)) {
+                gastos = [];
+            }
+        } catch(e) {
+            console.error("Error al cargar gastos, inicializando vacíos:", e);
+            gastos = [];
+        }
+
+        try {
+            const rawConfig = localStorage.getItem('iptv_v46_config');
+            if (rawConfig && rawConfig.trim() !== "" && rawConfig !== "[object Object]") {
+                configProv = JSON.parse(rawConfig) || { day: 23, amount: 0 };
+            }
+        } catch(e) {
+            console.error("Error al cargar configuración de proveedor:", e);
+            configProv = { day: 23, amount: 0 };
+        }
+
         let indexLiquidando = null;
+        let currentFilter = 'all'; 
+        let confirmCallback = null;
 
         function save() { 
-            localStorage.setItem('iptv_v46_db', JSON.stringify(db));
-            localStorage.setItem('iptv_v46_gastos', JSON.stringify(gastos));
-            localStorage.setItem('iptv_v46_config', JSON.stringify(configProv));
+            try {
+                localStorage.setItem('iptv_v46_db', JSON.stringify(db));
+                localStorage.setItem('iptv_v46_gastos', JSON.stringify(gastos));
+                localStorage.setItem('iptv_v46_config', JSON.stringify(configProv));
+            } catch (e) {
+                console.error("No se pudo guardar en el almacenamiento local:", e);
+            }
         }
+
+        function askConfirmation(title, message, callback) {
+            document.getElementById('confirmTitle').innerText = title;
+            document.getElementById('confirmMessage').innerText = message;
+            confirmCallback = callback;
+            openModal('confirmModal');
+        }
+
+        document.getElementById('confirmCancelBtn').onclick = () => {
+            closeModal('confirmModal');
+            confirmCallback = null;
+        };
+
+        document.getElementById('confirmOkBtn').onclick = () => {
+            closeModal('confirmModal');
+            if (confirmCallback) {
+                confirmCallback();
+            }
+            confirmCallback = null;
+        };
 
         function switchTab(t) {
             document.querySelectorAll('[id^="view-"]').forEach(v => v.classList.add('hidden'));
@@ -310,25 +420,52 @@
             document.getElementById(`tab-${t}`).classList.add('tab-active');
             if(t === 'finanzas') renderFinanzas();
             if(t === 'deudas') renderDeudas();
+            if(t === 'clientes') render();
+        }
+
+        function setFilter(filterType) {
+            currentFilter = filterType;
+            document.querySelectorAll('[id^="filter-"]').forEach(btn => btn.classList.remove('filter-btn-active'));
+            document.getElementById(`filter-${filterType}`).classList.add('filter-btn-active');
+            render();
         }
 
         function render() {
             const q = document.getElementById('searchInput').value.toLowerCase();
-            const container = document.getElementById('listaClientes'); container.innerHTML = '';
+            const container = document.getElementById('listaClientes'); 
+            if (!container) return;
+            container.innerHTML = '';
+            
+            const hoy = new Date();
+            hoy.setHours(0,0,0,0);
+
+            if (!Array.isArray(db)) db = [];
+
             db.forEach((c, i) => {
-                if(c.name.toLowerCase().includes(q)) {
-                    const diff = Math.ceil((new Date(c.date) - new Date()) / 86400000);
-                    const tDebe = (c.status === 'pending' ? parseFloat(c.price || 0) : 0) + parseFloat(c.debt || 0);
+                const nameMatch = (c.name || '').toLowerCase().includes(q);
+                const userMatch = (c.user || '').toLowerCase().includes(q);
+                const obsMatch = (c.obs || '').toLowerCase().includes(q);
+                
+                if(nameMatch || userMatch || obsMatch) {
+                    const clientDate = new Date(c.date || new Date());
+                    const diff = Math.ceil((clientDate - hoy) / 86400000);
                     
+                    const priceVal = parseFloat(c.price) || 0;
+                    const debtVal = parseFloat(c.debt) || 0;
+                    const tDebe = (c.status === 'pending' ? priceVal : 0) + debtVal;
+                    
+                    if (currentFilter === 'expired' && diff >= 0) return;
+                    if (currentFilter === 'pending' && tDebe === 0) return;
+
                     container.innerHTML += `<div class="card p-5 border-l-[6px] ${diff < 0 ? 'border-slate-500' : diff < 7 ? 'border-rose-600' : 'border-indigo-600'}">
                         <div class="space-y-3">
                             <div class="flex justify-between items-start">
-                                <div onclick="editClient(${i})" class="flex-1">
+                                <div onclick="editClient(${i})" class="flex-1 cursor-pointer">
                                     <div class="flex items-center gap-2">
-                                        <h3 class="font-black text-slate-100 text-xs uppercase">${c.name}</h3>
+                                        <h3 class="font-black text-slate-100 text-xs uppercase">${c.name || 'Sin nombre'}</h3>
                                         ${c.obs ? `<span class="bg-indigo-900/50 text-indigo-300 text-[8px] font-black px-1.5 py-0.5 rounded uppercase">${c.obs}</span>` : ''}
                                     </div>
-                                    <p class="text-[9px] font-bold text-slate-500 tracking-tight">${c.date} ${c.user ? '• ' + c.user : ''}</p>
+                                    <p class="text-[9px] font-bold text-slate-500 tracking-tight">${c.date || '---'} ${c.user ? '• ' + c.user : ''}</p>
                                     ${tDebe > 0 ? `<p class="text-[9px] font-black text-rose-400 mt-1 uppercase italic">Debe ${tDebe.toFixed(2)}€</p>` : ''}
                                 </div>
                                 <div class="flex gap-2">
@@ -349,7 +486,7 @@
 
         function quickCopy(e, text, label) {
             if(e) e.stopPropagation();
-            if(!text || text === 'undefined') { showToast(`No hay ${label}`); return; }
+            if(!text || text === 'undefined' || text === '') { showToast(`No hay ${label}`); return; }
             const el = document.createElement('textarea');
             el.value = text;
             document.body.appendChild(el);
@@ -386,25 +523,30 @@
         }
 
         function renderDeudas() {
-            let total = 0; const cont = document.getElementById('listaDeudores'); cont.innerHTML = '';
+            let total = 0; const cont = document.getElementById('listaDeudores'); 
+            if (!cont) return;
+            cont.innerHTML = '';
             db.forEach((c, idx) => {
                 const d = (c.status === 'pending' ? parseFloat(c.price || 0) : 0) + parseFloat(c.debt || 0);
                 if(d > 0) {
                     total += d;
                     cont.innerHTML += `<div class="card p-4 border-l-4 border-rose-600 flex justify-between items-center bg-rose-950/20">
                         <div>
-                            <p class="text-[10px] font-black uppercase text-slate-200">${c.name} ${c.obs ? '('+c.obs+')' : ''}</p>
+                            <p class="text-[10px] font-black uppercase text-slate-200">${c.name || 'Sin nombre'} ${c.obs ? '('+c.obs+')' : ''}</p>
                             <p class="text-xs font-black text-rose-400">${d.toFixed(2)}€</p>
                         </div>
                         <button onclick="abrirLiquidacion(${idx})" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-[8px] font-black uppercase">Liquidar</button>
                     </div>`;
                 }
             });
-            document.getElementById('totalDeudas').innerText = total.toFixed(2) + "€";
+            const totLabel = document.getElementById('totalDeudas');
+            if (totLabel) totLabel.innerText = total.toFixed(2) + "€";
         }
 
         function renderFinanzas() {
             const today = new Date();
+            const todayClean = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            
             const thisMonth = today.getMonth();
             const thisYear = today.getFullYear();
             const hasPaidProv = gastos.some(g => {
@@ -416,18 +558,37 @@
             const statusText = document.getElementById('provStatusText');
             const daysText = document.getElementById('provDaysText');
             const iconCircle = document.getElementById('provIconCircle');
-            document.getElementById('provAmountText').innerText = `${parseFloat(configProv.amount || 0).toFixed(2)}€`;
-            panel.className = "card p-6 border-2 transition-all duration-500";
+            const provAmt = document.getElementById('provAmountText');
+            
+            if (provAmt) provAmt.innerText = `${parseFloat(configProv.amount || 0).toFixed(2)}€`;
+            if (panel) panel.className = "card p-6 border-2 transition-all duration-500";
 
-            if (hasPaidProv) {
-                panel.classList.add('prov-ok'); statusText.innerText = "AL CORRIENTE ✅";
-                daysText.innerText = "PAGO REGISTRADO"; iconCircle.innerHTML = "✓";
-            } else {
-                const payDayDate = new Date(thisYear, thisMonth, configProv.day);
-                const diffDays = Math.ceil((payDayDate - today) / 86400000);
-                if (diffDays <= 1) { panel.classList.add('prov-danger'); statusText.innerText = "PENDIENTE ❌"; daysText.innerText = diffDays < 0 ? `RETRASO ${Math.abs(diffDays)} DÍAS` : `QUEDA ${diffDays} DÍA`; iconCircle.innerHTML = "!"; }
-                else if (diffDays <= 7) { panel.classList.add('prov-warning'); statusText.innerText = "PRÓXIMO PAGO ⏳"; daysText.innerText = `QUEDAN ${diffDays} DÍAS`; iconCircle.innerHTML = "⌛"; }
-                else { panel.classList.add('prov-safe'); statusText.innerText = "PROGRAMADO 📋"; daysText.innerText = `FALTAN ${diffDays} DÍAS`; iconCircle.innerHTML = "i"; }
+            if (panel && statusText && daysText && iconCircle) {
+                if (hasPaidProv) {
+                    panel.classList.add('prov-ok'); statusText.innerText = "AL CORRIENTE ✅";
+                    daysText.innerText = "PAGO REGISTRADO"; iconCircle.innerHTML = "✓";
+                } else {
+                    const payDayDate = new Date(thisYear, thisMonth, configProv.day);
+                    const diffDays = Math.ceil((payDayDate - todayClean) / 86400000);
+                    if (diffDays <= 1) { 
+                        panel.classList.add('prov-danger'); 
+                        statusText.innerText = "PENDIENTE ❌"; 
+                        daysText.innerText = diffDays < 0 ? `RETRASO ${Math.abs(diffDays)} DÍAS` : `QUEDA ${diffDays} DÍA`; 
+                        iconCircle.innerHTML = "!"; 
+                    }
+                    else if (diffDays <= 7) { 
+                        panel.classList.add('prov-warning'); 
+                        statusText.innerText = "PRÓXIMO PAGO ⏳"; 
+                        daysText.innerText = `QUEDAN ${diffDays} DÍAS`; 
+                        iconCircle.innerHTML = "⌛"; 
+                    }
+                    else { 
+                        panel.classList.add('prov-safe'); 
+                        statusText.innerText = "PROGRAMADO 📋"; 
+                        daysText.innerText = `FALTAN ${diffDays} DÍAS`; 
+                        iconCircle.innerHTML = "i"; 
+                    }
+                }
             }
 
             const ingresosCobrados = db.filter(c => c.status === 'paid').reduce((a, c) => a + parseFloat(c.price || 0), 0);
@@ -439,12 +600,19 @@
             const totalCostos = db.reduce((a, c) => a + parseFloat(c.cost || 0), 0);
             const beneficioEstimado = (totalPrecios - totalCostos) - gastosExtras;
 
-            document.getElementById('finCobradoReal').innerText = ingresosCobrados.toFixed(2) + "€";
-            document.getElementById('finGastadoReal').innerText = gastosTotales.toFixed(2) + "€";
-            document.getElementById('finNetoReal').innerText = beneficioReal.toFixed(2) + "€";
-            document.getElementById('finNetoEstimado').innerText = beneficioEstimado.toFixed(2) + "€";
+            const cReal = document.getElementById('finCobradoReal');
+            const gReal = document.getElementById('finGastadoReal');
+            const nReal = document.getElementById('finNetoReal');
+            const nEst = document.getElementById('finNetoEstimado');
 
-            const hist = document.getElementById('listaGastos'); hist.innerHTML = '';
+            if (cReal) cReal.innerText = ingresosCobrados.toFixed(2) + "€";
+            if (gReal) gReal.innerText = gastosTotales.toFixed(2) + "€";
+            if (nReal) nReal.innerText = beneficioReal.toFixed(2) + "€";
+            if (nEst) nEst.innerText = beneficioEstimado.toFixed(2) + "€";
+
+            const hist = document.getElementById('listaGastos'); 
+            if (!hist) return;
+            hist.innerHTML = '';
             gastos.sort((a,b) => new Date(b.fecha) - new Date(a.fecha)).forEach((g, idx) => {
                 hist.innerHTML += `<div class="flex justify-between items-center p-4 bg-slate-800/50 rounded-2xl border border-slate-700">
                     <div><p class="text-[10px] font-black uppercase text-slate-200">${g.concepto}</p><p class="text-[8px] font-bold text-slate-500 uppercase">${g.fecha}</p></div>
@@ -454,11 +622,35 @@
             });
         }
 
+        // Lógica de reinicio mensual robusta (no pierde deudas previas) y actualiza al instante
+        function resetMesManual() {
+            askConfirmation(
+                "Iniciar Nuevo Mes", 
+                "¿Estás seguro de iniciar un nuevo ciclo? Los clientes pasarán a Pendiente (❌). Las cuotas que no pagaron se sumarán a su saldo deudor de forma segura.", 
+                () => {
+                    db.forEach(c => {
+                        const cuotaNoPagada = c.status === 'pending' ? parseFloat(c.price || 0) : 0;
+                        const deudasAnteriores = parseFloat(c.debt || 0);
+                        
+                        c.debt = deudasAnteriores + cuotaNoPagada;
+                        c.status = 'pending';
+                    });
+                    
+                    gastos = [];
+                    save();
+                    render(); 
+                    renderFinanzas();
+                    renderDeudas();
+                    showToast("¡Nuevo mes iniciado y deudas acumuladas!");
+                }
+            );
+        }
+
         function abrirLiquidacion(i) {
             indexLiquidando = i;
             const c = db[i];
             const tDebe = (c.status === 'pending' ? parseFloat(c.price || 0) : 0) + parseFloat(c.debt || 0);
-            document.getElementById('liqClientName').innerText = c.name;
+            document.getElementById('liqClientName').innerText = c.name || 'Sin nombre';
             document.getElementById('liqTotalLabel').innerText = tDebe.toFixed(2) + "€";
             document.getElementById('liqAmountInput').value = tDebe;
             openModal('modalLiquidacion');
@@ -475,16 +667,43 @@
         }
 
         function prepareNewClient() { 
-            document.getElementById('clientForm').reset(); document.getElementById('editIndex').value = ''; 
-            document.getElementById('price').value = 12; document.getElementById('cost').value = 6;
-            calcProfit(); openModal('clientModal'); 
+            const form = document.getElementById('clientForm');
+            if (form) form.reset(); 
+            
+            const editIdxInput = document.getElementById('editIndex');
+            if (editIdxInput) editIdxInput.value = ''; 
+            
+            const priceInput = document.getElementById('price');
+            const costInput = document.getElementById('cost');
+            if (priceInput) priceInput.value = 12; 
+            if (costInput) costInput.value = 6;
+            
+            const dateInput = document.getElementById('date');
+            if (dateInput) {
+                const hoy = new Date();
+                hoy.setMonth(hoy.getMonth() + 1);
+                dateInput.value = hoy.toISOString().split('T')[0];
+            }
+            
+            calcProfit(); 
+            openModal('clientModal'); 
         }
 
         function editClient(i) {
-            const c = db[i]; document.getElementById('editIndex').value = i;
-            ['name', 'phone', 'user', 'pass', 'date', 'price', 'cost', 'status', 'obs'].forEach(k => document.getElementById(k).value = c[k] || '');
-            document.getElementById('manualDebt').value = c.debt || 0;
-            calcProfit(); openModal('clientModal');
+            const c = db[i]; 
+            const editIdxInput = document.getElementById('editIndex');
+            if (editIdxInput) editIdxInput.value = i;
+            
+            ['name', 'phone', 'user', 'pass', 'date', 'price', 'cost', 'status', 'obs'].forEach(k => {
+                const el = document.getElementById(k);
+                if (el) el.value = c[k] || '';
+            });
+            
+            const mDebt = document.getElementById('manualDebt');
+            if (mDebt) mDebt.value = c.debt || 0;
+            
+            calcProfit(); 
+            openModal('clientModal');
         }
 
         document.getElementById('clientForm').onsubmit = (e) => {
@@ -497,8 +716,8 @@
                 pass: document.getElementById('pass').value,
                 obs: document.getElementById('obs').value,
                 date: document.getElementById('date').value, 
-                price: document.getElementById('price').value,
-                cost: document.getElementById('cost').value, 
+                price: parseFloat(document.getElementById('price').value || 0),
+                cost: parseFloat(document.getElementById('cost').value || 0), 
                 status: document.getElementById('status').value,
                 debt: parseFloat(document.getElementById('manualDebt').value) || 0
             };
@@ -507,18 +726,34 @@
         };
 
         function quickRenew(m) {
-            const dInput = document.getElementById('date'); const d = new Date(dInput.value || new Date());
-            d.setMonth(d.getMonth() + m); dInput.value = d.toISOString().split('T')[0];
-            document.getElementById('status').value = 'paid'; 
-            document.getElementById('manualDebt').value = 0; 
+            const dInput = document.getElementById('date'); 
+            if (dInput) {
+                const d = new Date(dInput.value || new Date());
+                d.setMonth(d.getMonth() + m); 
+                dInput.value = d.toISOString().split('T')[0];
+            }
+            
+            const statusInput = document.getElementById('status');
+            if (statusInput) statusInput.value = 'paid'; 
+            
+            const mDebt = document.getElementById('manualDebt');
+            if (mDebt) mDebt.value = 0; 
+            
             showToast(`+${m} meses`);
         }
 
         function calcProfit() {
-            const res = parseFloat(document.getElementById('price').value || 0) - parseFloat(document.getElementById('cost').value || 0);
+            const priceIn = document.getElementById('price');
+            const costIn = document.getElementById('cost');
+            const priceVal = priceIn ? parseFloat(priceIn.value) || 0 : 0;
+            const costVal = costIn ? parseFloat(costIn.value) || 0 : 0;
+            
+            const res = priceVal - costVal;
             const label = document.getElementById('labelProfit');
-            label.innerText = `Beneficio: ${res.toFixed(2)}€`;
-            label.className = res >= 0 ? "text-center font-black text-xs text-emerald-400" : "text-center font-black text-xs text-rose-400";
+            if (label) {
+                label.innerText = `Beneficio: ${res.toFixed(2)}€`;
+                label.className = res >= 0 ? "text-center font-black text-xs text-emerald-400" : "text-center font-black text-xs text-rose-400";
+            }
         }
 
         function backupToWhatsApp() {
@@ -542,43 +777,148 @@
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) { processData(e.target.result); };
+            reader.onerror = function() { showToast("Error al leer el archivo"); };
             reader.readAsText(file);
             event.target.value = '';
         }
 
         function importFromText() {
             const txt = document.getElementById('importText').value.trim();
-            if (!txt) return;
+            if (!txt) {
+                showToast("Por favor, pega el texto de copia primero");
+                return;
+            }
             processData(txt);
         }
 
+        // LECTOR SEGURO ANTIFALLOS: Sanea datos rotos y tolera todos los formatos antiguos
         function processData(rawText) {
             try {
-                const jsonStart = rawText.indexOf('{');
-                const jsonEnd = rawText.lastIndexOf('}');
-                const cleanJson = rawText.substring(jsonStart, jsonEnd + 1);
-                const data = JSON.parse(cleanJson);
-                if (confirm('¿Restaurar copia de seguridad?')) {
-                    db = data.db || [];
-                    gastos = data.gastos || [];
-                    configProv = data.config || configProv;
-                    save();
-                    location.reload();
+                if (!rawText || rawText.trim() === "") {
+                    showToast("No se recibieron datos para restaurar");
+                    return;
                 }
-            } catch(e) { alert("Error de formato"); }
+
+                let cleanInput = rawText.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+                const jsonStart = cleanInput.indexOf('{');
+                const jsonEnd = cleanInput.lastIndexOf('}');
+                
+                const arrayStart = cleanInput.indexOf('[');
+                const arrayEnd = cleanInput.lastIndexOf(']');
+                
+                let cleanJson = "";
+                if (jsonStart !== -1 && (arrayStart === -1 || jsonStart < arrayStart)) {
+                    cleanJson = cleanInput.substring(jsonStart, jsonEnd + 1);
+                } else if (arrayStart !== -1) {
+                    cleanJson = cleanInput.substring(arrayStart, arrayEnd + 1);
+                } else {
+                    showToast("Formato incorrecto. Pega un JSON o texto válido.");
+                    return;
+                }
+
+                const data = JSON.parse(cleanJson);
+                
+                let finalDb = null;
+                let finalGastos = [];
+                let finalConfig = null;
+
+                if (Array.isArray(data)) {
+                    finalDb = data; 
+                } else if (data && typeof data === 'object') {
+                    finalDb = data.db || data.clientes || null;
+                    finalGastos = data.gastos || [];
+                    finalConfig = data.config || data.configProv || null;
+                }
+
+                if (!finalDb || !Array.isArray(finalDb)) {
+                    showToast("La copia no contiene clientes válidos.");
+                    return;
+                }
+
+                // Saneamiento de datos matemáticos contra NaN de seguridad
+                finalDb = finalDb.map(c => {
+                    return {
+                        name: c.name || "Sin nombre",
+                        phone: c.phone || "",
+                        user: c.user || "",
+                        pass: c.pass || "",
+                        obs: c.obs || "",
+                        date: c.date || new Date().toISOString().split('T')[0],
+                        price: isNaN(parseFloat(c.price)) ? 12 : parseFloat(c.price),
+                        cost: isNaN(parseFloat(c.cost)) ? 6 : parseFloat(c.cost),
+                        status: c.status || "pending",
+                        debt: isNaN(parseFloat(c.debt)) ? 0 : parseFloat(c.debt)
+                    };
+                });
+                
+                askConfirmation(
+                    "Restaurar Datos", 
+                    `Se han detectado ${finalDb.length} clientes sanos. ¿Confirmas la restauración? Se sobrescribirá tu base de datos actual.`, 
+                    () => {
+                        db = finalDb;
+                        gastos = finalGastos;
+                        if (finalConfig) {
+                            configProv = finalConfig;
+                        }
+                        
+                        save();
+                        render();
+                        renderFinanzas();
+                        renderDeudas();
+                        
+                        const inputTxt = document.getElementById('importText');
+                        if (inputTxt) inputTxt.value = '';
+                        
+                        showToast("¡Datos restaurados con éxito!");
+                    }
+                );
+            } catch(e) { 
+                console.error("Fallo de descompresión:", e);
+                showToast("JSON dañado. Asegúrate de copiarlo completo."); 
+            }
+        }
+
+        // LIMPIEZA FORZADA DE EMERGENCIA
+        function limpiarLocalStorageForzado() {
+            askConfirmation(
+                "Borrado Total", 
+                "¿Seguro que deseas borrar toda la base de datos del navegador? Esto dejará el programa totalmente limpio y resolverá cualquier error de cuelgue.", 
+                () => {
+                    localStorage.removeItem('iptv_v46_db');
+                    localStorage.removeItem('iptv_v46_gastos');
+                    localStorage.removeItem('iptv_v46_config');
+                    db = [];
+                    gastos = [];
+                    configProv = { day: 23, amount: 0 };
+                    save();
+                    render();
+                    renderFinanzas();
+                    renderDeudas();
+                    showToast("¡Base de datos limpiada!");
+                }
+            );
         }
 
         function prepareGasto() { 
-            const n = new Date(); document.getElementById('gastoForm').reset(); 
-            document.getElementById('gastoFecha').value = n.toISOString().split('T')[0]; 
-            document.getElementById('gastoImporte').value = configProv.amount; 
-            document.getElementById('gastoConcepto').value = "PAGO PROV " + n.toLocaleString('es-ES', { month: 'long' }).toUpperCase();
+            const n = new Date(); 
+            const f = document.getElementById('gastoForm');
+            if (f) f.reset(); 
+            
+            const gFecha = document.getElementById('gastoFecha');
+            if (gFecha) gFecha.value = n.toISOString().split('T')[0]; 
+            
+            const gImp = document.getElementById('gastoImporte');
+            if (gImp) gImp.value = configProv.amount || 0; 
+            
+            const gConcepto = document.getElementById('gastoConcepto');
+            if (gConcepto) gConcepto.value = "PAGO PROV " + n.toLocaleString('es-ES', { month: 'long' }).toUpperCase();
+            
             openModal('modalGasto'); 
         }
 
         document.getElementById('gastoForm').onsubmit = (e) => { 
             e.preventDefault(); 
-            gastos.push({ concepto: document.getElementById('gastoConcepto').value.toUpperCase(), importe: document.getElementById('gastoImporte').value, fecha: document.getElementById('gastoFecha').value }); 
+            gastos.push({ concepto: document.getElementById('gastoConcepto').value.toUpperCase(), importe: parseFloat(document.getElementById('gastoImporte').value || 0), fecha: document.getElementById('gastoFecha').value }); 
             save(); renderFinanzas(); closeModal('modalGasto'); showToast("Gasto guardado");
         };
 
@@ -590,20 +930,66 @@
         function sendWarning(e, i) {
             if(e) e.stopPropagation(); 
             const c = db[i];
+            
+            let cleanPhone = (c.phone || '').replace(/\s+/g, '').replace(/[-+]/g, '');
+            if(cleanPhone.length === 9 && (cleanPhone.startsWith('6') || cleanPhone.startsWith('7'))) {
+                cleanPhone = '34' + cleanPhone; 
+            }
+
             const msg = `Hola ${c.name}, el servicio vence el ${c.date}. ¿Deseas renovar?`;
-            const whatsappUrl = `https://api.whatsapp.com/send?phone=${c.phone}&text=${encodeURIComponent(msg)}`;
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`;
             window.open(whatsappUrl, '_blank');
         }
 
-        function deleteClient() { if(confirm('¿Borrar?')) { db.splice(document.getElementById('editIndex').value, 1); save(); render(); closeModal('clientModal'); } }
-        function borrarGasto(i) { if(confirm('¿Borrar?')) { gastos.splice(i, 1); save(); renderFinanzas(); } }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function showToast(m) { const t = document.getElementById('copyToast'); t.innerText = m; t.style.display = 'block'; setTimeout(() => t.style.display='none', 2000); }
+        function deleteClient() { 
+            askConfirmation(
+                "Eliminar Cliente", 
+                "¿Seguro que deseas eliminar a este cliente permanentemente?", 
+                () => {
+                    db.splice(document.getElementById('editIndex').value, 1); 
+                    save(); 
+                    render(); 
+                    closeModal('clientModal');
+                    showToast("Cliente eliminado");
+                }
+            );
+        }
 
+        function borrarGasto(i) { 
+            askConfirmation(
+                "Borrar Gasto", 
+                "¿Seguro que deseas eliminar este gasto de la lista?", 
+                () => {
+                    gastos.splice(i, 1); 
+                    save(); 
+                    renderFinanzas();
+                    showToast("Gasto eliminado");
+                }
+            );
+        }
+
+        function closeModal(id) { 
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden'); 
+        }
+        function openModal(id) { 
+            const el = document.getElementById(id);
+            if (el) el.classList.remove('hidden'); 
+        }
+        function showToast(m) { 
+            const t = document.getElementById('copyToast'); 
+            if (t) {
+                t.innerText = m; 
+                t.style.display = 'block'; 
+                setTimeout(() => t.style.display='none', 2000); 
+            }
+        }
+
+        // Renderizado inicial
         render();
     </script>
 </body>
 </html>
 
 ```
+
