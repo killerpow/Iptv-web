@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPTV Manager Pro - V46.11 Dark</title>
+    <title>IPTV Manager Pro - V46.12 Dark</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght=300;400;600;700;800&display=swap');
@@ -83,8 +83,8 @@
     <div class="bg-slate-950 text-white p-6 sticky top-0 z-40 shadow-2xl border-b border-slate-800">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div>
-                <h1 class="text-xl font-black tracking-tight">IPTV PRO <span class="text-indigo-400">V46.11</span></h1>
-                <p class="text-[9px] opacity-60 uppercase font-bold tracking-widest text-indigo-300">Control Mensual & Cola de Envíos Rápidos</p>
+                <h1 class="text-xl font-black tracking-tight">IPTV PRO <span class="text-indigo-400">V46.12</span></h1>
+                <p class="text-[9px] opacity-60 uppercase font-bold tracking-widest text-indigo-300">Control Mensual & Escaneo de Vencidos Automático</p>
             </div>
             <button onclick="prepareNewClient()" class="bg-indigo-600 hover:bg-indigo-500 p-3 rounded-2xl shadow-lg transition-all active:scale-90">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
@@ -103,8 +103,8 @@
 
         <!-- Vistas: CLIENTES -->
         <div id="view-clientes" class="space-y-4">
-            <!-- Sección nueva: Cola de Envíos Semiautomáticos de WhatsApp -->
-            <div id="colaAvisosContainer" class="hidden card p-5 border border-indigo-500/50 bg-indigo-950/20 space-y-3">
+            <!-- Sección: Cola de Envíos Semiautomáticos de WhatsApp -->
+            <div id="colaAvisosContainer" class="hidden card p-5 border border-indigo-500/50 bg-indigo-950/20 space-y-3 animate-pulse-indigo">
                 <div class="flex justify-between items-center">
                     <div>
                         <h4 class="text-xs font-black text-indigo-300 uppercase tracking-tight">Pendientes de Aviso WhatsApp 📲</h4>
@@ -444,6 +444,24 @@
             render();
         }
 
+        // NUEVO MOTOR DE AUTO-Detección y transición a Pendiente si la fecha ha expirado
+        function autoVerificarVencidos(hoy) {
+            let huboCambios = false;
+            db.forEach(c => {
+                const clientDate = new Date(c.date || new Date());
+                // Si la fecha de pago es estrictamente anterior a hoy y el estado sigue siendo pagado (paid)
+                if (clientDate < hoy && c.status === 'paid') {
+                    c.status = 'pending';
+                    c.avisado = false; // Permitimos que entre de nuevo en la cola de avisos
+                    huboCambios = true;
+                }
+            });
+            if (huboCambios) {
+                save();
+                showToast("🚨 Clientes vencidos actualizados a pendientes");
+            }
+        }
+
         // Renderizado del listado de clientes y de la Cola de WhatsApp
         function render() {
             const q = document.getElementById('searchInput').value.toLowerCase();
@@ -455,6 +473,9 @@
             hoy.setHours(0,0,0,0);
 
             if (!Array.isArray(db)) db = [];
+
+            // Ejecutamos el motor de escaneo inteligente antes de renderizar nada
+            autoVerificarVencidos(hoy);
 
             // Limpiamos y procesamos la Cola de Avisos de WhatsApp
             renderColaWhatsApp(hoy);
@@ -1066,4 +1087,3 @@
 </html>
 
 ```
-
