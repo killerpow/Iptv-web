@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPTV Manager Pro - V46.12 Dark</title>
+    <title>IPTV Manager Pro - V46.16 Dark</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght=300;400;600;700;800&display=swap');
@@ -50,6 +50,20 @@
             50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 
         }
 
+        /* Efecto de parpadeo y brillo rojo de emergencia para la deuda real */
+        @keyframes blink-red {
+            0%, 100% { 
+                background-color: rgb(69, 10, 10);
+                border-color: rgba(239, 68, 68, 0.6);
+                box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+            } 
+            50% { 
+                background-color: rgb(24, 5, 5);
+                border-color: rgba(239, 68, 68, 0.15);
+                box-shadow: 0 0 2px rgba(239, 68, 68, 0);
+            } 
+        }
+
         .copy-toast { 
             position: fixed; 
             bottom: 20px; 
@@ -83,8 +97,8 @@
     <div class="bg-slate-950 text-white p-6 sticky top-0 z-40 shadow-2xl border-b border-slate-800">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div>
-                <h1 class="text-xl font-black tracking-tight">IPTV PRO <span class="text-indigo-400">V46.12</span></h1>
-                <p class="text-[9px] opacity-60 uppercase font-bold tracking-widest text-indigo-300">Control Mensual & Escaneo de Vencidos Automático</p>
+                <h1 class="text-xl font-black tracking-tight">IPTV PRO <span class="text-indigo-400">V46.16</span></h1>
+                <p class="text-[9px] opacity-60 uppercase font-bold tracking-widest text-indigo-300">Mensajes de Cobro Dinámicos con Deuda</p>
             </div>
             <button onclick="prepareNewClient()" class="bg-indigo-600 hover:bg-indigo-500 p-3 rounded-2xl shadow-lg transition-all active:scale-90">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
@@ -103,8 +117,8 @@
 
         <!-- Vistas: CLIENTES -->
         <div id="view-clientes" class="space-y-4">
-            <!-- Sección: Cola de Envíos Semiautomáticos de WhatsApp -->
-            <div id="colaAvisosContainer" class="hidden card p-5 border border-indigo-500/50 bg-indigo-950/20 space-y-3 animate-pulse-indigo">
+            <!-- Cola de Envíos Semiautomáticos de WhatsApp -->
+            <div id="colaAvisosContainer" class="hidden card p-5 border border-indigo-500/50 bg-indigo-950/20 space-y-3">
                 <div class="flex justify-between items-center">
                     <div>
                         <h4 class="text-xs font-black text-indigo-300 uppercase tracking-tight">Pendientes de Aviso WhatsApp 📲</h4>
@@ -133,7 +147,7 @@
         <div id="view-deudas" class="hidden space-y-4">
             <div class="card p-6 bg-rose-900 text-white text-center border-rose-800">
                 <p class="text-[10px] font-bold uppercase opacity-80 mb-1">Total Pendiente de Cobro</p>
-                <h2 id="totalDeudas" class="text-3xl font-black text-rose-100">0.00€</h2>
+                <h2 id="totalDeudas" class="text-3xl font-black text-rose-100 animate-pulse">0.00€</h2>
             </div>
             <div id="listaDeudores" class="space-y-3"></div>
         </div>
@@ -187,7 +201,7 @@
             <div class="card p-5 border border-dashed border-indigo-500/40 bg-indigo-950/20 text-center space-y-3">
                 <div>
                     <h4 class="text-xs font-black text-indigo-300 uppercase">Control de Ciclo Mensual</h4>
-                    <p class="text-[9px] text-slate-400 uppercase mt-0.5">Pasa clientes a pendientes arrastrando sus deudas previas y limpia los gastos extras</p>
+                    <p class="text-[9px] text-slate-400 uppercase mt-0.5">Pasa clientes a pendientes respetando fechas activas y limpia los gastos extras</p>
                 </div>
                 <button onclick="resetMesManual()" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all text-white rounded-xl text-xs font-black uppercase shadow-md">
                     🔄 Iniciar Nuevo Mes
@@ -351,6 +365,29 @@
         </div>
     </div>
 
+    <!-- Modal de Resumen de Deudas Autogeneradas -->
+    <div id="autoDeudasModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 rounded-[2rem] max-w-md w-full p-8 shadow-2xl border border-indigo-900/60 space-y-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-rose-950 text-rose-400 flex items-center justify-center font-bold text-lg">🚨</div>
+                <div>
+                    <h3 class="text-sm font-black text-white uppercase tracking-tight">Deudas Mensuales Detectadas</h3>
+                    <p class="text-[9px] text-slate-400 uppercase">Se han acumulado ciclos vencidos a su deuda</p>
+                </div>
+            </div>
+            
+            <div id="autoDeudasLista" class="max-h-60 overflow-y-auto space-y-2 py-2 pr-1">
+                <!-- Se rellena con los clientes procesados -->
+            </div>
+            
+            <p class="text-[9px] text-slate-500 uppercase leading-snug text-center pt-2">Su fecha de vencimiento ha sido adelantada para iniciar el nuevo mes de cobro</p>
+            
+            <button onclick="closeModal('autoDeudasModal')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white p-4 rounded-2xl font-black text-[10px] uppercase shadow-lg transition-all active:scale-95">
+                Entendido y Sincronizado 👍
+            </button>
+        </div>
+    </div>
+
     <script>
         // INICIALIZACIÓN BLINDADA: Evita que el programa se cuelgue en carga por datos rotos previos
         let db = [];
@@ -444,22 +481,75 @@
             render();
         }
 
-        // NUEVO MOTOR DE AUTO-Detección y transición a Pendiente si la fecha ha expirado
+        // MOTOR REVOLUCIONARIO DE DETECCIÓN Y ACUMULACIÓN DE CICLOS MENSUALES VENCIDOS
         function autoVerificarVencidos(hoy) {
             let huboCambios = false;
+            let logDeudas = [];
+            
             db.forEach(c => {
                 const clientDate = new Date(c.date || new Date());
-                // Si la fecha de pago es estrictamente anterior a hoy y el estado sigue siendo pagado (paid)
-                if (clientDate < hoy && c.status === 'paid') {
-                    c.status = 'pending';
-                    c.avisado = false; // Permitimos que entre de nuevo en la cola de avisos
-                    huboCambios = true;
+                // Si su fecha ha expirado (es estrictamente menor que hoy)
+                if (clientDate < hoy) {
+                    let ciclosVencidos = 0;
+                    let tempDate = new Date(clientDate);
+                    
+                    // Contar cuántos meses de retraso lleva acumulados
+                    while (tempDate < hoy) {
+                        ciclosVencidos++;
+                        tempDate.setMonth(tempDate.getMonth() + 1);
+                    }
+                    
+                    if (ciclosVencidos > 0) {
+                        const precioMensual = parseFloat(c.price) || 12;
+                        const deudaGenerada = ciclosVencidos * precioMensual;
+                        
+                        // Sumamos la deuda acumulada real
+                        c.debt = (parseFloat(c.debt) || 0) + deudaGenerada;
+                        
+                        // Avanzamos la fecha de vencimiento de forma matemática limpia para colocarlo en el mes actual
+                        c.date = tempDate.toISOString().split('T')[0];
+                        c.status = 'pending'; // Pasa a estar pendiente de pago
+                        c.avisado = false;   // Habilitamos que entre en la cola de avisos de WhatsApp
+                        
+                        huboCambios = true;
+                        logDeudas.push({
+                            name: c.name || "Sin nombre",
+                            meses: ciclosVencidos,
+                            monto: deudaGenerada,
+                            precio: precioMensual,
+                            nuevaFecha: c.date
+                        });
+                    }
                 }
             });
+            
             if (huboCambios) {
                 save();
-                showToast("🚨 Clientes vencidos actualizados a pendientes");
+                mostrarAvisoDeudasAuto(logDeudas);
             }
+        }
+
+        // Dibuja el modal informativo con todos los meses y montos auto-acumulados
+        function mostrarAvisoDeudasAuto(listaDeudas) {
+            const modal = document.getElementById('autoDeudasModal');
+            const lista = document.getElementById('autoDeudasLista');
+            if (!modal || !lista) return;
+
+            lista.innerHTML = '';
+            listaDeudas.forEach(item => {
+                lista.innerHTML += `<div class="bg-slate-950 p-4 rounded-xl border border-rose-950/40 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs font-black text-slate-200 uppercase">${item.name}</p>
+                        <p class="text-[8px] text-slate-500 uppercase mt-0.5">Siguiente ciclo: ${item.nuevaFecha}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs font-black text-rose-400 animate-pulse">+${item.monto.toFixed(2)}€</p>
+                        <p class="text-[8px] text-slate-400 uppercase font-semibold">${item.meses} x ${item.precio}€/mes</p>
+                    </div>
+                </div>`;
+            });
+
+            openModal('autoDeudasModal');
         }
 
         // Renderizado del listado de clientes y de la Cola de WhatsApp
@@ -474,10 +564,10 @@
 
             if (!Array.isArray(db)) db = [];
 
-            // Ejecutamos el motor de escaneo inteligente antes de renderizar nada
+            // Ejecutamos el escáner de ciclos vencidos acumulativos antes de dibujar
             autoVerificarVencidos(hoy);
 
-            // Limpiamos y procesamos la Cola de Avisos de WhatsApp
+            // Procesamos la Cola de Avisos de WhatsApp
             renderColaWhatsApp(hoy);
 
             db.forEach((c, i) => {
@@ -491,7 +581,10 @@
                     
                     const priceVal = parseFloat(c.price) || 0;
                     const debtVal = parseFloat(c.debt) || 0;
-                    const tDebe = (c.status === 'pending' ? priceVal : 0) + debtVal;
+                    
+                    // COBRO JUSTO: La mensualidad actual solo se suma al total debido si el cliente ya ha vencido (fecha anterior o igual a hoy)
+                    const debeMensualidad = (c.status === 'pending' && clientDate <= hoy) ? priceVal : 0;
+                    const tDebe = debeMensualidad + debtVal;
                     
                     if (currentFilter === 'expired' && diff >= 0) return;
                     if (currentFilter === 'pending' && tDebe === 0) return;
@@ -504,8 +597,17 @@
                                         <h3 class="font-black text-slate-100 text-xs uppercase">${c.name || 'Sin nombre'}</h3>
                                         ${c.obs ? `<span class="bg-indigo-900/50 text-indigo-300 text-[8px] font-black px-1.5 py-0.5 rounded uppercase">${c.obs}</span>` : ''}
                                     </div>
-                                    <p class="text-[9px] font-bold text-slate-500 tracking-tight">${c.date || '---'} ${c.user ? '• ' + c.user : ''}</p>
-                                    ${tDebe > 0 ? `<p class="text-[9px] font-black text-rose-400 mt-1 uppercase italic">Debe ${tDebe.toFixed(2)}€</p>` : ''}
+                                    <p class="text-[9px] font-bold text-slate-500 tracking-tight">Vence: ${c.date || '---'} ${c.user ? '• ' + c.user : ''}</p>
+                                    
+                                    <!-- Cantidad de deuda parpadeante de emergencia -->
+                                    ${tDebe > 0 ? `
+                                    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black bg-rose-950/80 border border-rose-500/50 text-rose-400 mt-2 alert-debt-pulsing shadow-lg" style="animation: blink-red 1.2s infinite ease-in-out;">
+                                        <span class="relative flex h-2 w-2">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                                        </span>
+                                        DEBE ${tDebe.toFixed(2)}€
+                                    </div>` : ''}
                                 </div>
                                 <div class="flex gap-2">
                                     <button onclick="directRenew(event, ${i})" class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-[9px] font-black uppercase active:scale-95 shadow-md shadow-indigo-950">+1M</button>
@@ -618,14 +720,29 @@
             let total = 0; const cont = document.getElementById('listaDeudores'); 
             if (!cont) return;
             cont.innerHTML = '';
+            
+            const hoy = new Date();
+            hoy.setHours(0,0,0,0);
+
             db.forEach((c, idx) => {
-                const d = (c.status === 'pending' ? parseFloat(c.price || 0) : 0) + parseFloat(c.debt || 0);
+                const clientDate = new Date(c.date || new Date());
+                const priceVal = parseFloat(c.price || 0);
+                const debtVal = parseFloat(c.debt || 0);
+                
+                // COBRO JUSTO: La mensualidad actual solo se suma si ya ha vencido
+                const debeMensualidad = (c.status === 'pending' && clientDate <= hoy) ? priceVal : 0;
+                const d = debeMensualidad + debtVal;
+                
                 if(d > 0) {
                     total += d;
                     cont.innerHTML += `<div class="card p-4 border-l-4 border-rose-600 flex justify-between items-center bg-rose-950/20">
                         <div>
                             <p class="text-[10px] font-black uppercase text-slate-200">${c.name || 'Sin nombre'} ${c.obs ? '('+c.obs+')' : ''}</p>
-                            <p class="text-xs font-black text-rose-400">${d.toFixed(2)}€</p>
+                            
+                            <!-- Deuda parpadeante también en el resumen de deudores -->
+                            <div class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-black bg-rose-950 border border-rose-500/40 text-rose-400 mt-1" style="animation: blink-red 1.2s infinite ease-in-out;">
+                                DEBE ${d.toFixed(2)}€
+                            </div>
                         </div>
                         <button onclick="abrirLiquidacion(${idx})" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-[8px] font-black uppercase">Liquidar</button>
                     </div>`;
@@ -683,6 +800,7 @@
                 }
             }
 
+            // REGLA COBRO JUSTO EN FINANZAS: Los ingresos reales solo consideran las mensualidades de clientes cobradas o deudas históricas cobradas
             const ingresosCobrados = db.filter(c => c.status === 'paid').reduce((a, c) => a + parseFloat(c.price || 0), 0);
             const costosServidorPagados = db.filter(c => c.status === 'paid').reduce((a, c) => a + parseFloat(c.cost || 0), 0);
             const gastosExtras = gastos.reduce((a, g) => a + parseFloat(g.importe || 0), 0);
@@ -718,10 +836,16 @@
         function resetMesManual() {
             askConfirmation(
                 "Iniciar Nuevo Mes", 
-                "¿Estás seguro de iniciar un nuevo ciclo? Los clientes pasarán a Pendiente (❌). Las cuotas que no pagaron se sumarán a su saldo deudor de forma segura.", 
+                "¿Estás seguro de iniciar un nuevo ciclo? Los clientes pasarán a Pendiente (❌). Las cuotas que ya habían caducado se sumarán a su saldo deudor; los que tengan días activos pendientes se mantendrán a 0€ hasta su caducidad.", 
                 () => {
+                    const hoy = new Date();
+                    hoy.setHours(0,0,0,0);
+
                     db.forEach(c => {
-                        const cuotaNoPagada = c.status === 'pending' ? parseFloat(c.price || 0) : 0;
+                        const clientDate = new Date(c.date || new Date());
+                        
+                        // REGLA COBRO JUSTO EN REINICIO: Solo se considera como cuota no pagada si el servicio ya había vencido (date <= hoy)
+                        const cuotaNoPagada = (c.status === 'pending' && clientDate <= hoy) ? parseFloat(c.price || 0) : 0;
                         const deudasAnteriores = parseFloat(c.debt || 0);
                         
                         c.debt = deudasAnteriores + cuotaNoPagada;
@@ -734,7 +858,7 @@
                     render(); 
                     renderFinanzas();
                     renderDeudas();
-                    showToast("¡Nuevo mes iniciado y deudas acumuladas!");
+                    showToast("¡Nuevo mes iniciado con cobro justo!");
                 }
             );
         }
@@ -742,7 +866,15 @@
         function abrirLiquidacion(i) {
             indexLiquidando = i;
             const c = db[i];
-            const tDebe = (c.status === 'pending' ? parseFloat(c.price || 0) : 0) + parseFloat(c.debt || 0);
+            
+            const hoy = new Date();
+            hoy.setHours(0,0,0,0);
+            const clientDate = new Date(c.date || new Date());
+            
+            // Cobro justo al liquidar
+            const debeMensualidad = (c.status === 'pending' && clientDate <= hoy) ? parseFloat(c.price || 0) : 0;
+            const tDebe = debeMensualidad + parseFloat(c.debt || 0);
+            
             document.getElementById('liqClientName').innerText = c.name || 'Sin nombre';
             document.getElementById('liqTotalLabel').innerText = tDebe.toFixed(2) + "€";
             document.getElementById('liqAmountInput').value = tDebe;
@@ -752,7 +884,13 @@
         function confirmarLiquidacion() {
             const pagaHoy = parseFloat(document.getElementById('liqAmountInput').value || 0);
             const c = db[indexLiquidando];
-            const tDebe = (c.status === 'pending' ? parseFloat(c.price || 0) : 0) + parseFloat(c.debt || 0);
+            
+            const hoy = new Date();
+            hoy.setHours(0,0,0,0);
+            const clientDate = new Date(c.date || new Date());
+            const debeMensualidad = (c.status === 'pending' && clientDate <= hoy) ? parseFloat(c.price || 0) : 0;
+            const tDebe = debeMensualidad + parseFloat(c.debt || 0);
+
             if (pagaHoy >= tDebe) { c.debt = 0; c.status = 'paid'; }
             else { c.debt = tDebe - pagaHoy; c.status = 'paid'; }
             save(); renderDeudas(); render(); closeModal('modalLiquidacion');
@@ -850,6 +988,7 @@
             }
         }
 
+        // WhatsApp Backup
         function backupToWhatsApp() {
             const fullBackup = JSON.stringify({db, gastos, config: configProv});
             const msg = `BACKUP_IPTV_V464:${fullBackup}`;
@@ -857,6 +996,7 @@
             window.open(whatsappUrl, '_blank');
         }
 
+        // JSON Download
         function downloadBackup() {
             const dataToSave = {db, gastos, config: configProv};
             const blob = new Blob([JSON.stringify(dataToSave, null, 2)], { type: 'application/json' });
@@ -1022,6 +1162,7 @@
             save(); closeModal('modalConfigProv'); renderFinanzas();
         }
 
+        // NUEVA LOGICA DE MENSAJE DINÁMICO EN WHATSAPP CON IMPORTE DE DEUDA REAL
         function sendWarning(e, i) {
             if(e) e.stopPropagation(); 
             const c = db[i];
@@ -1031,7 +1172,23 @@
                 cleanPhone = '34' + cleanPhone; 
             }
 
-            const msg = `Hola ${c.name}, el servicio vence el ${c.date}. ¿Deseas renovar?`;
+            const hoy = new Date();
+            hoy.setHours(0,0,0,0);
+            const clientDate = new Date(c.date || new Date());
+            const priceVal = parseFloat(c.price) || 0;
+            const debtVal = parseFloat(c.debt) || 0;
+            
+            // Calculamos la deuda exacta
+            const debeMensualidad = (c.status === 'pending' && clientDate <= hoy) ? priceVal : 0;
+            const tDebe = debeMensualidad + debtVal;
+
+            let msg = `Hola ${c.name}, el servicio vence el ${c.date}. ¿Deseas renovar?`;
+            
+            // Si tiene deuda pendiente real, la anexamos al mensaje de forma transparente
+            if (tDebe > 0) {
+                msg += ` Tu deuda total es de ${tDebe.toFixed(2)} euros.`;
+            }
+
             const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`;
             window.open(whatsappUrl, '_blank');
         }
